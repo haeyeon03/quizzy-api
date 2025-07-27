@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import study.quizzy.comm.response.ApiResponse;
 import study.quizzy.comm.response.CustomResponseEntity;
+import study.quizzy.domain.dto.quiz.QuizAnswerRequestDto;
+import study.quizzy.domain.dto.quiz.QuizAnswerResponseDto;
 import study.quizzy.domain.dto.quiz.QuizRequestDto;
 import study.quizzy.domain.dto.quiz.QuizResponseDto;
 import study.quizzy.domain.dto.rank.RankResponseDto;
@@ -57,7 +59,11 @@ public class QuizController {
 	 * @param quizQuestionId, answer
 	 * @return isCorrect
 	 */
-
+	@GetMapping("/answers")
+	public ResponseEntity<ApiResponse<List<QuizAnswerResponseDto>>> checkAnswer(@ModelAttribute QuizAnswerRequestDto request){
+		List<QuizAnswerResponseDto> answerList = quizSerive.checkAnswer(request);
+		return CustomResponseEntity.success(answerList);
+	}
 	
 	/**
 	 * 퀴즈 조회 API 관리자용
@@ -93,7 +99,7 @@ public class QuizController {
 	 * @param quizId 퀴즈 ID
 	 * @return 해당 퀴즈에 대한 도전자 랭킹 목록
 	 */
-	@GetMapping("/{quizId}/ranks")
+	@GetMapping("/ranks/{quizId}")
 	public ResponseEntity<ApiResponse<List<RankResponseDto>>> getRankListByQuiz(@PathVariable Long quizId) {
 		List<RankResponseDto> rankList = quizSerive.getRankListByQuiz(quizId);
 		return CustomResponseEntity.success(rankList);

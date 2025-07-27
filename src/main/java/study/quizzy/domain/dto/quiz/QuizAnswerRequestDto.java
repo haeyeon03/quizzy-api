@@ -9,10 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuizQuestionResponseDto {
-
-	private Long quizQuestionId;
-	private String question;
-	private String imageFile;
-	
+public class QuizAnswerRequestDto {
+	private Long questionId;
+	private String answer;
 }

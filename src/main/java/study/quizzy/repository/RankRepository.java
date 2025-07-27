@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface RankRepository extends JpaRepository<Rank, RankId> {
     List<Rank> findAllById_QuizIdOrderByScoreDescDurationMsAsc(Long quizId);
+
+    List<Rank> findAllById_ChallengerIdOrderByUpdatedAtDesc(String challengerId);
 }

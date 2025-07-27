@@ -8,11 +8,15 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import study.quizzy.domain.dto.quiz.QuizAnswerRequestDto;
+import study.quizzy.domain.dto.quiz.QuizAnswerResponseDto;
 import study.quizzy.domain.dto.quiz.QuizRequestDto;
 import study.quizzy.domain.dto.quiz.QuizResponseDto;
 import study.quizzy.domain.dto.rank.RankResponseDto;
 import study.quizzy.domain.entity.Quiz;
+import study.quizzy.domain.entity.QuizAnswer;
 import study.quizzy.domain.entity.Rank;
+import study.quizzy.repository.QuizAnswerRepository;
 import study.quizzy.repository.QuizRepository;
 import study.quizzy.repository.RankRepository;
 import study.quizzy.service.QuizService;
@@ -22,10 +26,13 @@ public class QuizServiceImpl implements QuizService {
 
 	@Autowired
 	QuizRepository quizRepository;
+	
+	@Autowired
+	QuizAnswerRepository quizAnswerRepository;
 
 	@Autowired
 	RankRepository rankRepository;
-
+	
 	@Autowired
 	ModelMapper modelMapper;
 
@@ -54,13 +61,23 @@ public class QuizServiceImpl implements QuizService {
 		QuizResponseDto dto = modelMapper.map(quiz, QuizResponseDto.class);
 		return dto;
 	}
+	
+	@Override
+	public List<QuizAnswerResponseDto> checkAnswer(QuizAnswerRequestDto request) {
+		List<QuizAnswer> answerList= quizAnswerRepository.findAllByQuizQuestion_QuizQuestionId(request.getQuestionId());
+//		for(QuizAnswer answer: answerList) {
+//			
+//		}
+		return null;
+	}
 
 
 	@Override
 	public List<RankResponseDto> getRankListByQuiz(Long quizId) {
 		List<Rank> rankList = rankRepository.findAllById_QuizIdOrderByScoreDescDurationMsAsc(quizId);
-
 		return rankList.stream().map(rank -> modelMapper.map(rank, RankResponseDto.class)).toList();
 	}
+
+
 
 }

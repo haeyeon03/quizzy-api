@@ -7,6 +7,8 @@ import study.quizzy.comm.response.ApiResponse;
 import study.quizzy.comm.response.CustomResponseEntity;
 import study.quizzy.domain.dto.challenger.ChallengerRequestDto;
 import study.quizzy.domain.dto.challenger.ChallengerResponseDto;
+import study.quizzy.domain.dto.rank.RankRequestDto;
+import study.quizzy.domain.dto.rank.RankResponseDto;
 import study.quizzy.service.ChallengerService;
 
 import java.util.List;
@@ -65,5 +67,30 @@ public class ChallengerController {
 	public ResponseEntity<ApiResponse<Long>> removeChallenger(@ModelAttribute ChallengerRequestDto request) {
 		Long removed = challengerService.removeChallenger(request);
 		return CustomResponseEntity.success(removed);
+	}
+
+
+	/**
+	 * 도전자가 참여한 퀴즈의 랭킹 등록
+	 *
+	 * @param request *quizId, *challengerId, *score, *durationMs
+	 * @return 해당 도전자가 참여한 퀴즈별 랭킹 목록
+	 */
+	@PostMapping("/ranks")
+	public ResponseEntity<ApiResponse<Long>> addRankByChallenger(@RequestBody RankRequestDto request) {
+		Long added = challengerService.addRankByChallenger(request);
+		return CustomResponseEntity.success(added);
+	}
+
+	/**
+	 * 도전자가 참여한 퀴즈별 랭킹 조회
+	 *
+	 * @param challengerId 도전자 ID
+	 * @return 해당 도전자가 참여한 퀴즈별 랭킹 목록
+	 */
+	@GetMapping("/ranks/{challengerId}")
+	public ResponseEntity<ApiResponse<List<RankResponseDto>>> getRankListByChallenger(@PathVariable String challengerId) {
+		List<RankResponseDto> rankList = challengerService.getRankListByChallenger(challengerId);
+		return CustomResponseEntity.success(rankList);
 	}
 }

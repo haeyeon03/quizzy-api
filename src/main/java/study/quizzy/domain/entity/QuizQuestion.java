@@ -23,7 +23,7 @@ public class QuizQuestion extends BaseTimeEntity {
 	@Id
 	@Column(name = "quiz_question_id")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "quiz_question_seq_gen")
-	private int quizQuestionId;
+	private Long quizQuestionId;
 
 	@ManyToOne
 	@JoinColumn(name = "quiz_id")

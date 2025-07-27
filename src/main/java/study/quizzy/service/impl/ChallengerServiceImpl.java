@@ -6,8 +6,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import study.quizzy.domain.dto.challenger.ChallengerRequestDto;
 import study.quizzy.domain.dto.challenger.ChallengerResponseDto;
+import study.quizzy.domain.dto.rank.RankRequestDto;
+import study.quizzy.domain.dto.rank.RankResponseDto;
 import study.quizzy.domain.entity.Challenger;
+import study.quizzy.domain.entity.Rank;
 import study.quizzy.repository.ChallengerRepository;
+import study.quizzy.repository.RankRepository;
 import study.quizzy.service.ChallengerService;
 
 import java.util.List;
@@ -16,6 +20,9 @@ import java.util.List;
 public class ChallengerServiceImpl implements ChallengerService {
     @Autowired
     ChallengerRepository challengerRepository;
+
+    @Autowired
+    RankRepository rankRepository;
 
     @Autowired
     ModelMapper modelMapper;
@@ -80,5 +87,28 @@ public class ChallengerServiceImpl implements ChallengerService {
             // 기타 실패 처리
         }
         return 0L;
+    }
+
+    @Override
+    public Long addRankByChallenger(RankRequestDto request) {
+        Rank rank = modelMapper.map(request, Rank.class);
+
+        try {
+            Rank saved = rankRepository.save(rank);
+            return 1L;
+        } catch (DataIntegrityViolationException e) {
+            // 제약 조건 위반 (중복, null 등)
+            // 실패 처리
+        } catch (Exception e) {
+            // 기타 실패 처리
+        }
+        return 0L;
+    }
+
+    @Override
+    public List<RankResponseDto> getRankListByChallenger(String challengerId) {
+        List<Rank> rankList = rankRepository.findAllById_ChallengerIdOrderByUpdatedAtDesc(challengerId);
+
+        return rankList.stream().map(rank -> modelMapper.map(rank, RankResponseDto.class)).toList();
     }
 }
