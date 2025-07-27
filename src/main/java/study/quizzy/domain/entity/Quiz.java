@@ -11,11 +11,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import lombok.ToString;
 import study.quizzy.domain.entity.base.BaseTimeEntity;
 
 @Entity
 @Table(name = "quiz")
 @SequenceGenerator(name = "quiz_seq_gen", sequenceName = "quiz_seq", initialValue = 1, allocationSize = 1)
+@ToString
 public class Quiz extends BaseTimeEntity {
 	
 	@Id
@@ -28,6 +30,9 @@ public class Quiz extends BaseTimeEntity {
 
 	@Column(name = "description")
 	private String description;
+	
+	@Column(name = "image_file")
+	private String imageFile;
 
 	@OneToMany(mappedBy = "quiz")
 	private List<QuizQuestion> quizQuestionList = new ArrayList<>();
