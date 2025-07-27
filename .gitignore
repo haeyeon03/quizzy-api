@@ -1,0 +1,59 @@
+# 프로젝트 문서
+HELP.md
+
+# 빌드 결과물
+target/
+build/
+**/target/
+**/build/
+!**/src/main/**/target/
+!**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Maven Wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# 로그 파일
+*.log
+hs_err_pid*.log
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
+
+# 환경 설정 파일 (보안용)
+.env
+application-local.yml
+
+# 테스트 결과 및 커버리지
+/test-output/
+coverage/
+
+# === IDE 설정 파일 ===
+
+### STS / Eclipse ###
+.metadata/
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### VS Code ###
+.vscode/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
