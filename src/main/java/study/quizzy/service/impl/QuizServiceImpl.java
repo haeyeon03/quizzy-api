@@ -7,8 +7,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import study.quizzy.domain.dto.QuizRequestDto;
-import study.quizzy.domain.dto.QuizResponseDto;
+import study.quizzy.domain.dto.quiz.QuizRequestDto;
+import study.quizzy.domain.dto.quiz.QuizResponseDto;
 import study.quizzy.domain.entity.Quiz;
 import study.quizzy.repository.QuizRepository;
 import study.quizzy.service.QuizService;

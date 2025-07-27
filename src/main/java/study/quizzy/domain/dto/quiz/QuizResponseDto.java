@@ -1,4 +1,4 @@
-package study.quizzy.domain.dto;
+package study.quizzy.domain.dto.quiz;
 
 import java.util.ArrayList;
 import java.util.List;

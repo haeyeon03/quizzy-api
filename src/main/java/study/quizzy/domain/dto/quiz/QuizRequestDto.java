@@ -1,4 +1,4 @@
-package study.quizzy.domain.dto;
+package study.quizzy.domain.dto.quiz;
 
 import lombok.Getter;
 import lombok.Setter;

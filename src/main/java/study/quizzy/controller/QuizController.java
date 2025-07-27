@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import study.quizzy.domain.dto.QuizRequestDto;
-import study.quizzy.domain.dto.QuizResponseDto;
+import study.quizzy.comm.response.ApiResponse;
+import study.quizzy.comm.response.CustomResponseEntity;
+import study.quizzy.domain.dto.challenger.ChallengerResponseDto;
+import study.quizzy.domain.dto.quiz.QuizRequestDto;
+import study.quizzy.domain.dto.quiz.QuizResponseDto;
 import study.quizzy.service.QuizService;
 
 @RestController
@@ -31,9 +34,9 @@ public class QuizController {
 	 * @return 조회 조건에 만족하는 퀴즈 리스트
 	 */
 	@GetMapping("/")
-	public ResponseEntity<?> getQuizList(@ModelAttribute QuizRequestDto request) {
+	public ResponseEntity<ApiResponse<List<QuizResponseDto>>> getQuizList(@ModelAttribute QuizRequestDto request) {
 		List<QuizResponseDto> quizList = quizSerive.getQuizList(request);
-		return ResponseEntity.ok(quizList);
+		return CustomResponseEntity.success(quizList);
 	}
 
 	/**
@@ -43,6 +46,7 @@ public class QuizController {
 	 * @return quizQuestionList
 	 */
 
+	
 	/**
 	 * 퀴즈 조회 API 관리자용
 	 * 
