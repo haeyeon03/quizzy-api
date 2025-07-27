@@ -2,6 +2,7 @@ package study.quizzy.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +41,13 @@ public class QuizServiceImpl implements QuizService {
 		}
 		return dtoList;
 	}
+
+	@Override
+	public QuizResponseDto getQuizById(QuizRequestDto request) {
+		 Optional<Quiz> quiz = quizRepository.findById(request.getQuizId());
+		 QuizResponseDto dto = modelMapper.map(quiz, QuizResponseDto.class);
+		return dto;
+	}
+
 
 }

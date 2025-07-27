@@ -7,4 +7,10 @@ import java.util.List;
 
 public interface ChallengerService {
     List<ChallengerResponseDto> getChallengerList(ChallengerRequestDto request);
+
+    Long addChallenger(ChallengerRequestDto request);
+
+    Long modifyChallenger(ChallengerRequestDto request);
+
+    Long removeChallenger(ChallengerRequestDto request);
 }

@@ -8,5 +8,6 @@ import study.quizzy.domain.dto.base.BasePageRequestDto;
 @Setter
 public class QuizRequestDto extends BasePageRequestDto {
 	
+	private Long quizId;
 	private String title;
 }

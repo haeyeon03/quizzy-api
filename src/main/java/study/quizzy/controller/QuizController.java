@@ -7,12 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import study.quizzy.comm.response.ApiResponse;
 import study.quizzy.comm.response.CustomResponseEntity;
-import study.quizzy.domain.dto.challenger.ChallengerResponseDto;
 import study.quizzy.domain.dto.quiz.QuizRequestDto;
 import study.quizzy.domain.dto.quiz.QuizResponseDto;
 import study.quizzy.service.QuizService;
@@ -45,7 +43,11 @@ public class QuizController {
 	 * @param quizId
 	 * @return quizQuestionList
 	 */
-
+	@GetMapping("/questions")
+	public ResponseEntity<ApiResponse<QuizResponseDto>> getQuizById(@ModelAttribute QuizRequestDto request){
+		QuizResponseDto quiz = quizSerive.getQuizById(request);
+		return CustomResponseEntity.success(quiz);
+	}
 	
 	/**
 	 * 퀴즈 조회 API 관리자용

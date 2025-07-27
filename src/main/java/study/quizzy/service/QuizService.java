@@ -8,5 +8,7 @@ import study.quizzy.domain.dto.quiz.QuizResponseDto;
 public interface QuizService {
 
 	List<QuizResponseDto> getQuizList(QuizRequestDto request);
-	
+
+	QuizResponseDto getQuizById(QuizRequestDto request);
+
 }

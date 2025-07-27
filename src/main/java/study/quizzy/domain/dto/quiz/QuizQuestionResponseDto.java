@@ -1,0 +1,18 @@
+package study.quizzy.domain.dto.quiz;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class QuizQuestionResponseDto {
+
+	private Long quizQuestionId;
+	private String question;
+	private String imageFile;
+//	private List<QuizAnswerResponseDto> quizAnswerList = new ArrayList<>();
+}

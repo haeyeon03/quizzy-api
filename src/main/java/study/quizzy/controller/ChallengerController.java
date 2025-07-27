@@ -2,9 +2,7 @@ package study.quizzy.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import study.quizzy.comm.response.ApiResponse;
 import study.quizzy.comm.response.CustomResponseEntity;
 import study.quizzy.domain.dto.challenger.ChallengerRequestDto;
@@ -23,26 +21,49 @@ public class ChallengerController {
     /**
      * 도전자 목록 조회 API
      *
-     * @param request nickname, curPage, pageSize
+     * @param request *quizId, nickname, *curPage, *pageSize (*필수)
      * @return challengerList
      */
     @GetMapping("/")
-    public ResponseEntity<ApiResponse<List<ChallengerResponseDto>>> getChallengerList(ChallengerRequestDto request) {
+    public ResponseEntity<ApiResponse<List<ChallengerResponseDto>>> getChallengerList(@ModelAttribute ChallengerRequestDto request) {
         List<ChallengerResponseDto> challengerList = challengerService.getChallengerList(request);
         return CustomResponseEntity.success(challengerList);
     }
 
 	/**
-	 * 도전자 정보 수정 API
-	 * 
-	 * @param challenger_id,nickname,password
-	 * @return -
+	 * 도전자 정보 생성 API (회원가입)
+	 *
+	 *
+	 * @param request *challengerId, *nickname, *password, provider, email (*필수)
+	 * @return Total number of challengers added (0 or 1)
 	 */
+	@PostMapping("/")
+	public ResponseEntity<ApiResponse<Long>> addChallenger(@RequestBody ChallengerRequestDto request) {
+		Long added = challengerService.addChallenger(request);
+		return CustomResponseEntity.success(added);
+	}
 
 	/**
-	 * 도전자 순위 조회 API
+	 * 도전자 정보 수정 API
 	 * 
-	 * @param challenger_id,page,pageSize
-	 * @return score,rank,quizTitle
+	 * @param request nickname, password
+	 * @return Total number of challengers modified (0 or 1)
 	 */
+	@PutMapping("/")
+	public ResponseEntity<ApiResponse<Long>> modifyChallenger(@RequestBody ChallengerRequestDto request) {
+		Long modified = challengerService.modifyChallenger(request);
+		return CustomResponseEntity.success(modified);
+	}
+
+	/**
+	 * 도전자 정보 삭제 API (탈퇴)
+	 *
+	 * @param request *challengerId (*필수)
+	 * @return Total number of challengers removed (0 or 1)
+	 */
+	@DeleteMapping("/")
+	public ResponseEntity<ApiResponse<Long>> removeChallenger(@RequestBody ChallengerRequestDto request) {
+		Long removed = challengerService.removeChallenger(request);
+		return CustomResponseEntity.success(removed);
+	}
 }
