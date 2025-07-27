@@ -1,5 +1,8 @@
 package study.quizzy.domain.dto.quiz;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,5 +17,5 @@ public class QuizQuestionResponseDto {
 	private Long quizQuestionId;
 	private String question;
 	private String imageFile;
-//	private List<QuizAnswerResponseDto> quizAnswerList = new ArrayList<>();
+	
 }

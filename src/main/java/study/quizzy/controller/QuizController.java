@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,6 +14,7 @@ import study.quizzy.comm.response.ApiResponse;
 import study.quizzy.comm.response.CustomResponseEntity;
 import study.quizzy.domain.dto.quiz.QuizRequestDto;
 import study.quizzy.domain.dto.quiz.QuizResponseDto;
+import study.quizzy.domain.dto.rank.RankResponseDto;
 import study.quizzy.service.QuizService;
 
 @RestController
@@ -50,28 +52,20 @@ public class QuizController {
 	}
 	
 	/**
-	 * 퀴즈 조회 API 관리자용
-	 * 
-	 * @param quizId
-	 * @return quiz
-	 */
-	
-	
-	/**
-	 * 퀴즈 조회 API 관리자용
-	 * 
-	 * @param quizId
-	 * @return quiz
-	 */
-
-
-	/**
 	 * 퀴즈 정답 조회 API
 	 * 
 	 * @param quizQuestionId, answer
 	 * @return isCorrect
 	 */
 
+	
+	/**
+	 * 퀴즈 조회 API 관리자용
+	 * 
+	 * @param quizId
+	 * @return quiz
+	 */
+	
 	/**
 	 * 퀴즈 등록 API 관리자용
 	 * 
@@ -92,5 +86,17 @@ public class QuizController {
 	 * @param quizId
 	 * @return
 	 */
+	
+	/**
+	 * 퀴즈별 도전자 랭킹 조회 API
+	 *
+	 * @param quizId 퀴즈 ID
+	 * @return 해당 퀴즈에 대한 도전자 랭킹 목록
+	 */
+	@GetMapping("/{quizId}/ranks")
+	public ResponseEntity<ApiResponse<List<RankResponseDto>>> getRankListByQuiz(@PathVariable Long quizId) {
+		List<RankResponseDto> rankList = quizSerive.getRankListByQuiz(quizId);
+		return CustomResponseEntity.success(rankList);
+	}
 
 }

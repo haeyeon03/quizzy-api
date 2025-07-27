@@ -9,5 +9,7 @@ import study.quizzy.domain.dto.base.BasePageRequestDto;
 public class QuizRequestDto extends BasePageRequestDto {
 	
 	private Long quizId;
+	private Long questionId;
 	private String title;
+	
 }

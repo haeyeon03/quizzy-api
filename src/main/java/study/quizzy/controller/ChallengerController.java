@@ -62,7 +62,7 @@ public class ChallengerController {
 	 * @return Total number of challengers removed (0 or 1)
 	 */
 	@DeleteMapping("/")
-	public ResponseEntity<ApiResponse<Long>> removeChallenger(@RequestBody ChallengerRequestDto request) {
+	public ResponseEntity<ApiResponse<Long>> removeChallenger(@ModelAttribute ChallengerRequestDto request) {
 		Long removed = challengerService.removeChallenger(request);
 		return CustomResponseEntity.success(removed);
 	}

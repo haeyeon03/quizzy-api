@@ -4,10 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
 import study.quizzy.domain.entity.base.BaseTimeEntity;
 
 @Entity
 @Table(name = "challenger")
+@Getter
 public class Challenger extends BaseTimeEntity {
 
 	@Id
