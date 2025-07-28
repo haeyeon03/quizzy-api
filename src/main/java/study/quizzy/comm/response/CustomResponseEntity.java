@@ -30,6 +30,15 @@ public class CustomResponseEntity {
                 .build();
         return ResponseEntity.ok(response);
     }
+    
+    public static ResponseEntity<ApiResponse<Void>> error(String message) {
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message(message)
+                .timestamp(getTimestamp())
+                .build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
 
     public static ResponseEntity<ApiResponse<Void>> error(HttpStatus status, String message) {
         ApiResponse<Void> response = ApiResponse.<Void>builder()
