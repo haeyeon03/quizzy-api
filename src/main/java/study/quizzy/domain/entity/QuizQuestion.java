@@ -13,10 +13,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import lombok.Getter;
 import study.quizzy.domain.entity.base.BaseTimeEntity;
 
 @Entity
 @Table(name = "quiz_question")
+@Getter
 @SequenceGenerator(name = "quiz_question_seq_gen", sequenceName = "quiz_question_seq", initialValue = 1, allocationSize = 1)
 public class QuizQuestion extends BaseTimeEntity {
 

@@ -19,5 +19,7 @@ public class QuizResponseDto{
 	private String title;
 	private String description;
 	private String imageFile;
+	
 	private List<QuizQuestionResponseDto> quizQuestionList = new ArrayList<>();
+	private List<String> answerList = new ArrayList<>();
 }

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import study.quizzy.comm.response.ApiResponse;
 import study.quizzy.comm.response.CustomResponseEntity;
-import study.quizzy.domain.dto.quiz.QuizAnswerRequestDto;
 import study.quizzy.domain.dto.quiz.QuizAnswerResponseDto;
 import study.quizzy.domain.dto.quiz.QuizRequestDto;
 import study.quizzy.domain.dto.quiz.QuizResponseDto;
@@ -56,13 +55,13 @@ public class QuizController {
 	/**
 	 * 퀴즈 정답 조회 API
 	 * 
-	 * @param quizQuestionId, answer
-	 * @return isCorrect
+	 * @param request *quizId, *quizQuestionId (*필수)
+	 * @return 정답 목록
 	 */
 	@GetMapping("/answers")
-	public ResponseEntity<ApiResponse<List<QuizAnswerResponseDto>>> checkAnswer(@ModelAttribute QuizAnswerRequestDto request){
-		List<QuizAnswerResponseDto> answerList = quizSerive.checkAnswer(request);
-		return CustomResponseEntity.success(answerList);
+	public ResponseEntity<ApiResponse<List<QuizAnswerResponseDto>>> getAnswerListByQuestion(@ModelAttribute QuizRequestDto request){
+		List<QuizAnswerResponseDto> quizAnswerList = quizSerive.getAnswerListByQuestion(request);
+		return CustomResponseEntity.success(quizAnswerList);
 	}
 	
 	/**

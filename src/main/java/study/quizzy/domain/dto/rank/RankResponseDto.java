@@ -17,4 +17,6 @@ public class RankResponseDto {
     private int score;
     private int durationMs;
     private LocalDateTime updatedAt;
+
+    private int rankNumber;
 }

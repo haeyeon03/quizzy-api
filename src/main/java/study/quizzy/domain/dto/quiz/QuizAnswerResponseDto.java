@@ -1,14 +1,13 @@
 package study.quizzy.domain.dto.quiz;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class QuizAnswerResponseDto {
-	private Long quizQuestionId;
-	private List<String> answerList = new ArrayList<>();
+    private Long quizAnswerId;
+    private String answer;
 }
