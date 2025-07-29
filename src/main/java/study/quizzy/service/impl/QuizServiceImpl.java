@@ -6,12 +6,15 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+import study.quizzy.domain.dto.quiz.QuizAnswerRequestDto;
 import study.quizzy.domain.dto.quiz.QuizAnswerResponseDto;
+import study.quizzy.domain.dto.quiz.QuizQuestionRequestDto;
 import study.quizzy.domain.dto.quiz.QuizQuestionResponseDto;
 import study.quizzy.domain.dto.quiz.QuizRequestDto;
 import study.quizzy.domain.dto.quiz.QuizResponseDto;
@@ -91,4 +94,47 @@ public class QuizServiceImpl implements QuizService {
 
         return modelMapper.map(quizQuestion, QuizQuestionResponseDto.class).getQuizAnswerList();
     }
+    
+	@Override
+	public Long addQuiz(QuizRequestDto request) {
+				
+		Quiz quiz = modelMapper.map(request, Quiz.class);
+
+	    for (QuizQuestion question : quiz.getQuizQuestionList()) {
+	        question.setQuiz(quiz);
+	        for (QuizAnswer answer : question.getQuizAnswerList()) {
+	            answer.setQuizQuestion(question);
+	        }
+	    }
+
+		try {
+			Quiz saved = quizRepository.save(quiz);
+			return 1L;
+		} catch (DataIntegrityViolationException e) {
+			// 제약 조건 위반 (중복, null 등)
+			// 실패 처리
+		} catch (Exception e) {
+			// 기타 실패 처리
+			e.printStackTrace();
+		}
+		return 0L;
+	}
+
+	@Override
+	public Long removeQuiz(QuizRequestDto request) {
+		Long quizId = request.getQuizId();
+		try {
+			if(quizRepository.existsById(quizId)) {
+				quizRepository.deleteById(quizId);
+				return 1L;
+			}
+		}catch (DataIntegrityViolationException e) {
+			// 제약 조건 위반 (중복, null 등)
+			// 실패 처리
+		} catch (Exception e) {
+			// 기타 실패 처리
+		}
+		return 0L;
+	}
+
 }

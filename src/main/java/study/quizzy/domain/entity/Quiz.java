@@ -3,6 +3,7 @@ package study.quizzy.domain.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,15 +13,24 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import study.quizzy.domain.entity.base.BaseTimeEntity;
 
 @Entity
 @Table(name = "quiz")
 @Getter
+@Setter
+@NoArgsConstructor
 @SequenceGenerator(name = "quiz_seq_gen", sequenceName = "quiz_seq", initialValue = 1, allocationSize = 1)
 public class Quiz extends BaseTimeEntity {
 	
+	public Quiz(String title, String description, String imageFile) {
+		this.title = title;
+		this.description = description;
+		this.imageFile = imageFile;
+	}
+
 	@Id
 	@Column(name = "quiz_id")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "quiz_seq_gen")
@@ -35,6 +45,6 @@ public class Quiz extends BaseTimeEntity {
 	@Column(name = "image_file")
 	private String imageFile;
 
-	@OneToMany(mappedBy = "quiz")
+	@OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<QuizQuestion> quizQuestionList = new ArrayList<>();
 }

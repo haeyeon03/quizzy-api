@@ -16,4 +16,8 @@ public interface QuizService {
 	List<RankResponseDto> getRankListByQuiz(Long quizId);
 
 	List<QuizAnswerResponseDto> getAnswerListByQuestion(QuizRequestDto request);
+
+	Long removeQuiz(QuizRequestDto request);
+
+	Long addQuiz(QuizRequestDto request);
 }
