@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import study.quizzy.comm.response.ApiResponse;
 import study.quizzy.comm.response.CustomResponseEntity;
-import study.quizzy.domain.dto.challenger.ChallengerRequestDto;
 import study.quizzy.domain.dto.quiz.QuizAnswerResponseDto;
 import study.quizzy.domain.dto.quiz.QuizRequestDto;
 import study.quizzy.domain.dto.quiz.QuizResponseDto;
@@ -94,6 +93,7 @@ public class QuizController {
 		Long modified = quizSerive.modifyQuiz(request);
 		return CustomResponseEntity.success(modified);
 	}
+	
 	/**
 	 * 퀴즈 삭제 API 관리자용
 	 * 
@@ -116,6 +116,18 @@ public class QuizController {
 	public ResponseEntity<ApiResponse<List<RankResponseDto>>> getRankListByQuiz(@PathVariable Long quizId) {
 		List<RankResponseDto> rankList = quizSerive.getRankListByQuiz(quizId);
 		return CustomResponseEntity.success(rankList);
+	}
+	
+	/**
+	 * 도전자 퀴즈 점수 등록 API
+	 *
+	 * @param quizId, challengerId, inputAnswer
+	 * @return 
+	 */
+	@PostMapping("/score")
+	public ResponseEntity<ApiResponse<Long>> addScore(@RequestBody RankRequestDto request){
+		Long added = quizSerive.addScore(request);
+		return CustomResponseEntity.success(added);
 	}
 
 }

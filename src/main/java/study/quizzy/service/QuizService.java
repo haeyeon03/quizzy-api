@@ -5,6 +5,7 @@ import java.util.List;
 import study.quizzy.domain.dto.quiz.QuizAnswerResponseDto;
 import study.quizzy.domain.dto.quiz.QuizRequestDto;
 import study.quizzy.domain.dto.quiz.QuizResponseDto;
+import study.quizzy.domain.dto.rank.RankRequestDto;
 import study.quizzy.domain.dto.rank.RankResponseDto;
 
 public interface QuizService {
@@ -22,4 +23,6 @@ public interface QuizService {
 	Long addQuiz(QuizRequestDto request);
 
 	Long modifyQuiz(QuizRequestDto request);
+
+	Long addScore(RankRequestDto request);
 }

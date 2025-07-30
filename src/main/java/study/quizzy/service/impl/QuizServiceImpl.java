@@ -21,18 +21,20 @@ import study.quizzy.domain.dto.quiz.QuizQuestionRequestDto;
 import study.quizzy.domain.dto.quiz.QuizQuestionResponseDto;
 import study.quizzy.domain.dto.quiz.QuizRequestDto;
 import study.quizzy.domain.dto.quiz.QuizResponseDto;
+import study.quizzy.domain.dto.rank.AnswerSubmissionDto;
+import study.quizzy.domain.dto.rank.RankRequestDto;
 import study.quizzy.domain.dto.rank.RankResponseDto;
 import study.quizzy.domain.entity.Quiz;
 import study.quizzy.domain.entity.QuizAnswer;
 import study.quizzy.domain.entity.QuizQuestion;
 import study.quizzy.domain.entity.Rank;
+import study.quizzy.domain.entity.id.RankId;
 import study.quizzy.repository.QuizQuestionRepository;
 import study.quizzy.repository.QuizRepository;
 import study.quizzy.repository.RankRepository;
 import study.quizzy.service.QuizService;
 
 @Service
-@Transactional
 public class QuizServiceImpl implements QuizService {
 
 	@Autowired
@@ -121,6 +123,7 @@ public class QuizServiceImpl implements QuizService {
 	}
 
 	@Override
+	@Transactional
 	public Long modifyQuiz(QuizRequestDto request) {
 		// 1. 기존 퀴즈 조회
 		Quiz quiz = quizRepository.findById(request.getQuizId())
@@ -217,7 +220,7 @@ public class QuizServiceImpl implements QuizService {
 				removeList.add(oldQuestion);
 			}
 		}
-		
+
 		// 기존 문제 리스트에서 요청에 없는(삭제된) 문제들을 제거
 		oldQuestionList.removeAll(removeList);
 
@@ -243,6 +246,46 @@ public class QuizServiceImpl implements QuizService {
 				quizRepository.deleteById(quizId);
 				return 1L;
 			}
+		} catch (DataIntegrityViolationException e) {
+			// 제약 조건 위반 (중복, null 등)
+			// 실패 처리
+		} catch (Exception e) {
+			// 기타 실패 처리
+		}
+		return 0L;
+	}
+
+	@Override
+	@Transactional
+	public Long addScore(RankRequestDto request) {
+		Long quizId = request.getQuizId();
+		String challengerId = request.getChallengerId();
+		int score = 0;
+
+		for (AnswerSubmissionDto submitAnswer : request.getInputAnswerList()) {
+			Long quizQuestionId = submitAnswer.getQuizQuestionId();
+			String inputAnswer = submitAnswer.getInputAnswer();
+
+			// 해당 문제의 정답 리스트 가져오기
+			QuizRequestDto quizRequestDto = new QuizRequestDto();
+			quizRequestDto.setQuizId(quizId);
+			quizRequestDto.setQuizQuestionId(quizQuestionId);
+
+			List<QuizAnswerResponseDto> answerList = getAnswerListByQuestion(quizRequestDto);
+			for (QuizAnswerResponseDto answerDto : answerList) {
+				if (inputAnswer.equals(answerDto.getAnswer())) {
+					score = score + 10;
+					break;
+				}
+			}
+		}
+
+		RankId rankId = new RankId(quizId, challengerId);
+		Rank rank = new Rank(rankId, score, request.getDurationMs());
+
+		try {
+			Rank saved = rankRepository.save(rank);
+			return 1L;
 		} catch (DataIntegrityViolationException e) {
 			// 제약 조건 위반 (중복, null 등)
 			// 실패 처리

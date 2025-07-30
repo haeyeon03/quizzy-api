@@ -1,6 +1,9 @@
 package study.quizzy.domain.dto.rank;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,4 +14,6 @@ public class RankRequestDto {
     private String challengerId;
     private int score;
     private int durationMs;
+    
+    private List<AnswerSubmissionDto> inputAnswerList = new ArrayList<>();
 }

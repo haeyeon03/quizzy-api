@@ -47,6 +47,7 @@ public class ChallengerServiceImpl implements ChallengerService, UserDetailsServ
 
 	@Override
 	public List<ChallengerResponseDto> getChallengerList(ChallengerRequestDto request) {
+		
 		return List.of();
 	}
 
