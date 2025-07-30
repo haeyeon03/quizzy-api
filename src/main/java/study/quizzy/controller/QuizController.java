@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import study.quizzy.comm.response.ApiResponse;
 import study.quizzy.comm.response.CustomResponseEntity;
+import study.quizzy.domain.dto.challenger.ChallengerRequestDto;
 import study.quizzy.domain.dto.quiz.QuizAnswerResponseDto;
 import study.quizzy.domain.dto.quiz.QuizRequestDto;
 import study.quizzy.domain.dto.quiz.QuizResponseDto;
@@ -87,7 +89,11 @@ public class QuizController {
 	 * @param title,image,questionList,answerList
 	 * @return
 	 */
-
+	@PutMapping("/admin")
+	public ResponseEntity<ApiResponse<Long>> modifyQuiz(@RequestBody QuizRequestDto request) {
+		Long modified = quizSerive.modifyQuiz(request);
+		return CustomResponseEntity.success(modified);
+	}
 	/**
 	 * 퀴즈 삭제 API 관리자용
 	 * 

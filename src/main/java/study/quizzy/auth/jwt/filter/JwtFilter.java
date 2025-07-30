@@ -43,7 +43,7 @@ public class JwtFilter extends OncePerRequestFilter{
 			filterChain.doFilter(request, response);
 		} catch (Exception e) {
 			ObjectMapper objectMapper = new ObjectMapper();
-			
+			e.printStackTrace();
 			String jsonStr = objectMapper.writeValueAsString(Map.of("error", "ERROR_LOGIN"));
 			response.setContentType("application/json; charset=UTF-8");
 			PrintWriter printWriter = response.getWriter();

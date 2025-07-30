@@ -2,14 +2,17 @@ package study.quizzy.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
 import study.quizzy.domain.dto.quiz.QuizAnswerRequestDto;
@@ -29,83 +32,81 @@ import study.quizzy.repository.RankRepository;
 import study.quizzy.service.QuizService;
 
 @Service
+@Transactional
 public class QuizServiceImpl implements QuizService {
 
-    @Autowired
-    QuizRepository quizRepository;
+	@Autowired
+	QuizRepository quizRepository;
 
-    @Autowired
-    QuizQuestionRepository quizQuestionRepository;
+	@Autowired
+	QuizQuestionRepository quizQuestionRepository;
 
-    @Autowired
-    RankRepository rankRepository;
+	@Autowired
+	RankRepository rankRepository;
 
-    @Autowired
-    ModelMapper modelMapper;
+	@Autowired
+	ModelMapper modelMapper;
 
-    @Override
-    public List<QuizResponseDto> getQuizList(QuizRequestDto request) {
-        List<Quiz> entityList = new ArrayList<>();
-        List<QuizResponseDto> dtoList = new ArrayList<>();
+	@Override
+	public List<QuizResponseDto> getQuizList(QuizRequestDto request) {
+		List<Quiz> entityList = new ArrayList<>();
+		List<QuizResponseDto> dtoList = new ArrayList<>();
 
-        String title = request.getTitle();
-        if (title == null || title.isBlank()) {
-            entityList = quizRepository.findAll();
-        } else {
-            entityList = quizRepository.findAllByTitle(title);
-        }
+		String title = request.getTitle();
+		if (title == null || title.isBlank()) {
+			entityList = quizRepository.findAll();
+		} else {
+			entityList = quizRepository.findAllByTitle(title);
+		}
 
-        for (Quiz quiz : entityList) {
-            QuizResponseDto dto = modelMapper.map(quiz, QuizResponseDto.class);
-            dtoList.add(dto);
-        }
-        return dtoList;
-    }
+		for (Quiz quiz : entityList) {
+			QuizResponseDto dto = modelMapper.map(quiz, QuizResponseDto.class);
+			dtoList.add(dto);
+		}
+		return dtoList;
+	}
 
-    @Override
-    public QuizResponseDto getQuizById(QuizRequestDto request) {
-        Optional<Quiz> quiz = quizRepository.findById(request.getQuizId());
-        QuizResponseDto dto = modelMapper.map(quiz, QuizResponseDto.class);
-        return dto;
-    }
+	@Override
+	public QuizResponseDto getQuizById(QuizRequestDto request) {
+		Optional<Quiz> quiz = quizRepository.findById(request.getQuizId());
+		QuizResponseDto dto = modelMapper.map(quiz, QuizResponseDto.class);
+		return dto;
+	}
 
-    @Override
-    public List<RankResponseDto> getRankListByQuiz(Long quizId) {
-        List<Rank> rankList = rankRepository.findAllById_QuizIdOrderByScoreDescDurationMsAsc(quizId);
+	@Override
+	public List<RankResponseDto> getRankListByQuiz(Long quizId) {
+		List<Rank> rankList = rankRepository.findAllById_QuizIdOrderByScoreDescDurationMsAsc(quizId);
 
-        AtomicInteger counter = new AtomicInteger(1);
-        return rankList.stream()
-                .map(rank -> {
-                    RankResponseDto dto = modelMapper.map(rank, RankResponseDto.class);
-                    dto.setRankNumber(counter.getAndIncrement());
-                    return dto;
-                })
-                .collect(Collectors.toList());
-    }
+		AtomicInteger counter = new AtomicInteger(1);
+		return rankList.stream().map(rank -> {
+			RankResponseDto dto = modelMapper.map(rank, RankResponseDto.class);
+			dto.setRankNumber(counter.getAndIncrement());
+			return dto;
+		}).collect(Collectors.toList());
+	}
 
-    @Override
-    public List<QuizAnswerResponseDto> getAnswerListByQuestion(QuizRequestDto request) {
-        Long quizId = request.getQuizId();
-        Long quizQuestionId = request.getQuizQuestionId();
+	@Override
+	public List<QuizAnswerResponseDto> getAnswerListByQuestion(QuizRequestDto request) {
+		Long quizId = request.getQuizId();
+		Long quizQuestionId = request.getQuizQuestionId();
 
-        QuizQuestion quizQuestion = quizQuestionRepository
-                .findByQuizQuestionIdAndQuiz_QuizId(quizQuestionId, quizId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈의 문제가 존재하지 않습니다."));
+		QuizQuestion quizQuestion = quizQuestionRepository.findByQuizQuestionIdAndQuiz_QuizId(quizQuestionId, quizId)
+				.orElseThrow(() -> new EntityNotFoundException("해당 퀴즈의 문제가 존재하지 않습니다."));
 
-        return modelMapper.map(quizQuestion, QuizQuestionResponseDto.class).getQuizAnswerList();
-    }
-    
+		return modelMapper.map(quizQuestion, QuizQuestionResponseDto.class).getQuizAnswerList();
+	}
+
 	@Override
 	public Long addQuiz(QuizRequestDto request) {
-				
+
 		Quiz quiz = modelMapper.map(request, Quiz.class);
 
-	    for (QuizQuestion question : quiz.getQuizQuestionList()) {
-	        question.setQuiz(quiz);
-	        for (QuizAnswer answer : question.getQuizAnswerList()) {
-	            answer.setQuizQuestion(question);
-	        }
-	    }
+		for (QuizQuestion question : quiz.getQuizQuestionList()) {
+			question.setQuiz(quiz);
+			for (QuizAnswer answer : question.getQuizAnswerList()) {
+				answer.setQuizQuestion(question);
+			}
+		}
 
 		try {
 			Quiz saved = quizRepository.save(quiz);
@@ -120,14 +121,129 @@ public class QuizServiceImpl implements QuizService {
 	}
 
 	@Override
+	public Long modifyQuiz(QuizRequestDto request) {
+		// 1. 기존 퀴즈 조회
+		Quiz quiz = quizRepository.findById(request.getQuizId())
+				.orElseThrow(() -> new EntityNotFoundException("해당 퀴즈가 존재하지 않습니다."));
+
+		// 2. 퀴즈 기본 정보 수정
+		quiz.setTitle(request.getTitle());
+		quiz.setDescription(request.getDescription());
+		quiz.setImageFile(request.getImageFile());
+
+		// 3. 기존 문제들 준비
+		List<QuizQuestion> oldQuestionList = quiz.getQuizQuestionList();
+
+		// 4. 수정된 문제 리스트를 저장할 공간
+		List<QuizQuestion> updatedQuestionList = new ArrayList<>();
+
+		// 5. 수정할 문제 하나씩 보기
+		for (QuizQuestionRequestDto questionDto : request.getQuizQuestionList()) {
+			QuizQuestion question = null;
+
+			// 6. 기존 문제에서 내가 요청한(수정한) 문제 찾기
+			for (QuizQuestion oldQuestion : oldQuestionList) {
+				if (questionDto.getQuizQuestionId() != null
+						&& questionDto.getQuizQuestionId().equals(oldQuestion.getQuizQuestionId())) {
+					question = oldQuestion;
+					break;
+				}
+			}
+
+			// 7-1. 내가 요청한(수정한) 문제 라면 문제 수정
+			if (question != null) {
+				question.setQuestion(questionDto.getQuestion());
+				question.setImageFile(questionDto.getImageFile());
+			} else {
+				// 7-2. 요청한(수정한) 문제가 아닌 새로운 문제라면 새 문제 생성
+				question = new QuizQuestion();
+				question.setQuestion(questionDto.getQuestion());
+				question.setImageFile(questionDto.getImageFile());
+				// 어떤 퀴즈에 속하게 될지 알려줘야함
+				question.setQuiz(quiz);
+			}
+
+			// 8. 답 수정
+			List<QuizAnswer> updatedAnswerList = new ArrayList<>();
+			List<QuizAnswer> oldAnswersList = question.getQuizAnswerList();
+
+			// 9. 수정 할 답 하나씩 보기
+			for (QuizAnswerRequestDto answerDto : questionDto.getQuizAnswerList()) {
+				QuizAnswer answer = null;
+
+				// 10. 기존 답에서 내가 요청한(수정한) 답 찾기
+				for (QuizAnswer oldAnswer : oldAnswersList) {
+					if (answerDto.getQuizAnswerId() != null
+							&& answerDto.getQuizAnswerId().equals(oldAnswer.getQuizAnswerId())) {
+						answer = oldAnswer;
+						break;
+					}
+				}
+
+				// 11-1. 내가 요청한(수정한) 답이라면 답 수정
+				if (answer != null) {
+					// 기존 답변 수정
+					answer.setAnswer(answerDto.getAnswer());
+				} else {
+					// 11-2. 요청한(수정한) 답이 아닌 새로운 답이라면 새 답 생성
+					answer = new QuizAnswer();
+					answer.setAnswer(answerDto.getAnswer());
+					answer.setQuizQuestion(question);
+				}
+
+				updatedAnswerList.add(answer);
+			}
+
+			// 기존 답변 리스트 교체
+			oldAnswersList.clear();
+			oldAnswersList.addAll(updatedAnswerList);
+
+			// 수정된 문제 리스트에 추가
+			updatedQuestionList.add(question);
+		}
+
+		// 12. 기존 문제 중에 내가 수정한 문제에 삭제가 된 문제는 제외하기
+		List<QuizQuestion> removeList = new ArrayList<>();
+		for (QuizQuestion oldQuestion : oldQuestionList) {
+			boolean stillExists = false;
+			for (QuizQuestionRequestDto qDto : request.getQuizQuestionList()) {
+				if (qDto.getQuizQuestionId() != null
+						&& qDto.getQuizQuestionId().equals(oldQuestion.getQuizQuestionId())) {
+					stillExists = true;
+					break;
+				}
+			}
+			if (!stillExists) {
+				removeList.add(oldQuestion);
+			}
+		}
+		
+		// 기존 문제 리스트에서 요청에 없는(삭제된) 문제들을 제거
+		oldQuestionList.removeAll(removeList);
+
+		// 13. 기존 퀴즈 문제 리스트를 완전히 새로 바꿔줌
+		oldQuestionList.clear(); // 기존 문제들 전부 제거
+		oldQuestionList.addAll(updatedQuestionList); // 새로 수정/추가한 문제들로 다시 채움
+
+		// 저장
+		try {
+			quizRepository.save(quiz);
+			return 1L;
+		} catch (Exception e) {
+			// 오류 처리
+			return 0L;
+		}
+	}
+
+	@Override
 	public Long removeQuiz(QuizRequestDto request) {
 		Long quizId = request.getQuizId();
 		try {
-			if(quizRepository.existsById(quizId)) {
+			if (quizRepository.existsById(quizId)) {
 				quizRepository.deleteById(quizId);
 				return 1L;
 			}
-		}catch (DataIntegrityViolationException e) {
+		} catch (DataIntegrityViolationException e) {
 			// 제약 조건 위반 (중복, null 등)
 			// 실패 처리
 		} catch (Exception e) {
@@ -135,5 +251,4 @@ public class QuizServiceImpl implements QuizService {
 		}
 		return 0L;
 	}
-
 }

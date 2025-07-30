@@ -20,4 +20,6 @@ public interface QuizService {
 	Long removeQuiz(QuizRequestDto request);
 
 	Long addQuiz(QuizRequestDto request);
+
+	Long modifyQuiz(QuizRequestDto request);
 }
