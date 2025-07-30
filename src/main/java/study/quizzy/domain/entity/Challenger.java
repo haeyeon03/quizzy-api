@@ -1,15 +1,17 @@
 package study.quizzy.domain.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import study.quizzy.domain.entity.base.BaseTimeEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "challenger")
 @Getter
+@Setter
 public class Challenger extends BaseTimeEntity {
 
 	@Id
@@ -27,4 +29,7 @@ public class Challenger extends BaseTimeEntity {
 
 	@Column(name = "email")
 	private String email;
+
+	@OneToMany(mappedBy = "challenger", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Rank> ranks = new ArrayList<>();
 }

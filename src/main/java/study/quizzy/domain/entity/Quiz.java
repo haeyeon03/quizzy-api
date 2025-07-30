@@ -15,12 +15,14 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import study.quizzy.domain.entity.base.BaseTimeEntity;
 
 @Entity
 @Table(name = "quiz")
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @SequenceGenerator(name = "quiz_seq_gen", sequenceName = "quiz_seq", initialValue = 1, allocationSize = 1)
 public class Quiz extends BaseTimeEntity {

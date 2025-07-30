@@ -2,23 +2,20 @@ package study.quizzy.service;
 
 import study.quizzy.domain.dto.challenger.ChallengerRequestDto;
 import study.quizzy.domain.dto.challenger.ChallengerResponseDto;
-import study.quizzy.domain.dto.rank.RankRequestDto;
-import study.quizzy.domain.dto.rank.RankResponseDto;
+import study.quizzy.domain.dto.quiz.QuizRankResponseDto;
 
 import java.util.List;
 
 public interface ChallengerService {
-    List<ChallengerResponseDto> getChallengerList(ChallengerRequestDto request);
-
     Long addChallenger(ChallengerRequestDto request);
 
-    Long modifyChallenger(ChallengerRequestDto request);
+    List<ChallengerResponseDto> getChallengerList(ChallengerRequestDto request);
 
-    Long removeChallenger(ChallengerRequestDto request);
+    ChallengerResponseDto getChallenger(String challengerId);
 
-    Long addRankByChallenger(RankRequestDto request);
+    Long modifyChallenger(String challengerId, ChallengerRequestDto request);
 
-    List<RankResponseDto> getRankListByChallenger(String challengerId);
+    Long removeChallenger(String challengerId);
 
-
+    List<QuizRankResponseDto> getMyQuizList(String challengerId);
 }

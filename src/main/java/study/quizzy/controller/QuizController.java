@@ -31,11 +31,9 @@ public class QuizController {
 	QuizService quizSerive;
 
 	/**
-	 * 퀴즈 리스트 조회 API
+	 * 퀴즈 목록 조회 API
 	 * 
-	 * @param QuizRequestDto.title          사용자가 입력한 퀴즈 제목 검색 텍스트
-	 * @param QuizRequestDto.super.curPage  사용자가 선택한 페이지 넘버
-	 * @param QuizRequestDto.super.pageSize 사용자가 지정한 페이지 사이즈(한 페이지당 보여지는 퀴즈 수)
+	 * @param request title
 	 * 
 	 * @return 조회 조건에 만족하는 퀴즈 리스트
 	 */
@@ -46,54 +44,54 @@ public class QuizController {
 	}
 
 	/**
-	 * 퀴즈 문제 리스트 조회 API
+	 * 퀴즈(문제 포함) 조회 API
 	 * 
 	 * @param quizId
 	 * @return quizQuestionList
 	 */
-	@GetMapping("/questions")
-	public ResponseEntity<ApiResponse<QuizResponseDto>> getQuizById(@ModelAttribute QuizRequestDto request){
-		QuizResponseDto quiz = quizSerive.getQuizById(request);
+	@GetMapping("/{quizId}")
+	public ResponseEntity<ApiResponse<QuizResponseDto>> getQuizById(@PathVariable Long quizId) {
+		QuizResponseDto quiz = quizSerive.getQuizById(quizId);
 		return CustomResponseEntity.success(quiz);
 	}
-	
+
 	/**
-	 * 퀴즈 정답 조회 API
+	 * 퀴즈 문제의 정답 목록 조회 API
 	 * 
 	 * @param request *quizId, *quizQuestionId (*필수)
 	 * @return 정답 목록
 	 */
-	@GetMapping("/answers")
-	public ResponseEntity<ApiResponse<List<QuizAnswerResponseDto>>> getAnswerListByQuestion(@ModelAttribute QuizRequestDto request){
-		List<QuizAnswerResponseDto> quizAnswerList = quizSerive.getAnswerListByQuestion(request);
+	@GetMapping("/{quizId}/{quizQuestionId}")
+	public ResponseEntity<ApiResponse<List<QuizAnswerResponseDto>>> getAnswerListByQuizQuestionId(
+			@PathVariable Long quizId, @PathVariable Long quizQuestionId) {
+		List<QuizAnswerResponseDto> quizAnswerList = quizSerive.getAnswerListByQuizQuestionId(quizId, quizQuestionId);
 		return CustomResponseEntity.success(quizAnswerList);
 	}
-	
 
 	/**
-	 * 퀴즈 등록 API 관리자용
+	 * 퀴즈 등록 API (관리자용)
 	 * 
-	 * @param title,image,questionList,answerList
-	 * @return
+	 * @param request *title, image, questionList, answerList
+	 * @return Total number of challengers modified (0 or 1)
 	 */
-	@PostMapping("/admin")
-	public ResponseEntity<ApiResponse<Long>> addQuiz(@RequestBody QuizRequestDto request){
+	@PostMapping("/")
+	public ResponseEntity<ApiResponse<Long>> addQuiz(@RequestBody QuizRequestDto request) {
 		Long added = quizSerive.addQuiz(request);
 		return CustomResponseEntity.success(added);
 	}
 
 	/**
-	 * 퀴즈 수정 API 관리자용
+	 * 퀴즈 수정 API (관리자용)
 	 * 
-	 * @param title,image,questionList,answerList
-	 * @return
+	 * @param request title, image, questionList, answerList
+	 * @return Total number of challengers modified (0 or 1)
 	 */
-	@PutMapping("/admin")
+	@PutMapping("/{quizId}")
 	public ResponseEntity<ApiResponse<Long>> modifyQuiz(@RequestBody QuizRequestDto request) {
 		Long modified = quizSerive.modifyQuiz(request);
 		return CustomResponseEntity.success(modified);
 	}
-	
+
 	/**
 	 * 퀴즈 삭제 API 관리자용
 	 * 
@@ -101,11 +99,23 @@ public class QuizController {
 	 * @return
 	 */
 	@DeleteMapping("/admin")
-	public ResponseEntity<ApiResponse<Long>> removeQuiz(@ModelAttribute QuizRequestDto request){
+	public ResponseEntity<ApiResponse<Long>> removeQuiz(@ModelAttribute QuizRequestDto request) {
 		Long removed = quizSerive.removeQuiz(request);
 		return CustomResponseEntity.success(removed);
 	}
-	
+
+	/**
+	 * 도전자 퀴즈 점수 등록 API
+	 *
+	 * @param quizId, challengerId, inputAnswer
+	 * @return
+	 */
+	@PostMapping("/score")
+	public ResponseEntity<ApiResponse<Long>> addScore(@RequestBody RankRequestDto request) {
+		Long added = quizSerive.addScore(request);
+		return CustomResponseEntity.success(added);
+	}
+
 	/**
 	 * 퀴즈별 도전자 랭킹 조회 API
 	 *
@@ -117,17 +127,4 @@ public class QuizController {
 		List<RankResponseDto> rankList = quizSerive.getRankListByQuiz(quizId);
 		return CustomResponseEntity.success(rankList);
 	}
-	
-	/**
-	 * 도전자 퀴즈 점수 등록 API
-	 *
-	 * @param quizId, challengerId, inputAnswer
-	 * @return 
-	 */
-	@PostMapping("/score")
-	public ResponseEntity<ApiResponse<Long>> addScore(@RequestBody RankRequestDto request){
-		Long added = quizSerive.addScore(request);
-		return CustomResponseEntity.success(added);
-	}
-
 }

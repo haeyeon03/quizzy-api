@@ -12,17 +12,17 @@ public interface QuizService {
 
 	List<QuizResponseDto> getQuizList(QuizRequestDto request);
 
-	QuizResponseDto getQuizById(QuizRequestDto request);
-	
-	List<RankResponseDto> getRankListByQuiz(Long quizId);
+	QuizResponseDto getQuizById(Long quizId);
 
-	List<QuizAnswerResponseDto> getAnswerListByQuestion(QuizRequestDto request);
-
-	Long removeQuiz(QuizRequestDto request);
+	List<QuizAnswerResponseDto> getAnswerListByQuizQuestionId(Long quizId, Long quizQuestionId);
 
 	Long addQuiz(QuizRequestDto request);
 
 	Long modifyQuiz(QuizRequestDto request);
+
+	List<RankResponseDto> getRankListByQuiz(Long quizId);
+
+	Long removeQuiz(QuizRequestDto request);
 
 	Long addScore(RankRequestDto request);
 }

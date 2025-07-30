@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,51 +20,70 @@ import jakarta.servlet.http.HttpServletResponse;
 import study.quizzy.auth.jwt.util.JwtUtil;
 import study.quizzy.domain.dto.challenger.ChallengerAuthDto;
 
+@Log4j2
 public class JwtFilter extends OncePerRequestFilter{
-	
-	private static final List<String> EXCLUDE_URLS = List.of("/api/challengers/login");
+
+	// filter 예외 URL 목록
+	private static final List<String> EXCLUDE_URLS = List.of(
+			"/api/challengers/login"
+	);
+
+	private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-		// header 에 있는 accessToken 을 꺼냄
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		String path = request.getServletPath();
+		return EXCLUDE_URLS.stream().anyMatch(pattern -> PATH_MATCHER.match(pattern, path));
+	}
+	
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
+
+		// Header 에서 Access Token 추출
+		String accessToken = extractToken(request.getHeader("Authorization"));
+		if (accessToken == null || accessToken.isBlank()) {
+			 // Security 인증 객체가 없이 호출되어 SecurityConfig 에 permitAll() URL 이 아니라면 인증 오류 발생
+			filterChain.doFilter(request, response);
+			return;
+		}
+
 		try {
-			String accessToken = extractToken(request.getHeader("Authorization"));
-			
-			// accessToken 복호화 및 유효성 검사
-			Map<String,Object> claims = JwtUtil.validateToken(accessToken);
-			
-			// accessToken 의 claims 으로 UserDetails DTO 생성
+			// 토큰 유효성 검사
+			Map<String, Object> claims = JwtUtil.validateToken(accessToken);
 			String challengerId = (String) claims.get("challengerId");
+
 			ChallengerAuthDto challengerAuthDto = new ChallengerAuthDto(challengerId);
-			
-			// security 인증
-			UsernamePasswordAuthenticationToken authToken =  new UsernamePasswordAuthenticationToken(challengerAuthDto, null, challengerAuthDto.getAuthorities());
+
+			// Security 인증 객체 생성 및 인증
+			UsernamePasswordAuthenticationToken authToken =
+					new UsernamePasswordAuthenticationToken(challengerAuthDto, null, challengerAuthDto.getAuthorities());
 			SecurityContextHolder.getContext().setAuthentication(authToken);
 			
 			filterChain.doFilter(request, response);
 		} catch (Exception e) {
-			ObjectMapper objectMapper = new ObjectMapper();
-			e.printStackTrace();
-			String jsonStr = objectMapper.writeValueAsString(Map.of("error", "ERROR_LOGIN"));
-			response.setContentType("application/json; charset=UTF-8");
-			PrintWriter printWriter = response.getWriter();
-			printWriter.println(jsonStr);
-			printWriter.close();
+			log.error("JWT 인증 실패: {}", e.getMessage());
+			handleJwtException(response);
 		}
-		
 	}
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getServletPath();
-        return EXCLUDE_URLS.contains(path); // true or false
-    }
-    
-    public String extractToken(String authHeader) {
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7); // "Bearer " 길이는 7
-        }
-        return null; // or throw exception / return "" 등 처리 방식 선택
-    }
+	private void handleJwtException(HttpServletResponse response) throws IOException {
+		response.setContentType("application/json; charset=UTF-8");
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
+		Map<String, String> errorBody = Map.of("error", "ERROR_LOGIN");
+		String json = new ObjectMapper().writeValueAsString(errorBody);
+
+		try (PrintWriter writer = response.getWriter()) {
+			writer.print(json);
+			writer.flush();
+		}
+	}
+
+	private String extractToken(String authHeader) {
+		if (authHeader != null && authHeader.startsWith("Bearer ")) {
+			return authHeader.substring(7);
+		}
+		return null;
+	}
 }
