@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import study.quizzy.domain.entity.base.BaseTimeEntity;
 
@@ -17,6 +18,7 @@ import study.quizzy.domain.entity.base.BaseTimeEntity;
 @Table(name = "quiz_answer")
 @Getter
 @Setter
+@NoArgsConstructor
 @SequenceGenerator(name = "quiz_answer_seq_gen", sequenceName = "quiz_answer_seq", initialValue = 1, allocationSize = 1)
 public class QuizAnswer extends BaseTimeEntity {
 

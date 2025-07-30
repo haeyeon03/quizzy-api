@@ -115,7 +115,6 @@ public class QuizServiceImpl implements QuizService {
 			// 실패 처리
 		} catch (Exception e) {
 			// 기타 실패 처리
-			e.printStackTrace();
 		}
 		return 0L;
 	}
