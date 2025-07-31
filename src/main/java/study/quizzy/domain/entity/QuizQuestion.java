@@ -3,6 +3,9 @@ package study.quizzy.domain.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,9 +31,9 @@ import study.quizzy.domain.entity.base.BaseTimeEntity;
 public class QuizQuestion extends BaseTimeEntity {
 
 	public QuizQuestion(String question, String imageFile, Quiz quiz) {
-		this.question =question;
-		this.imageFile =imageFile;
-		this.quiz =quiz;
+		this.question = question;
+		this.imageFile = imageFile;
+		this.quiz = quiz;
 	}
 
 	@Id
@@ -40,14 +43,15 @@ public class QuizQuestion extends BaseTimeEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "quiz_id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Quiz quiz;
-	
+
 	@Column(name = "question")
 	private String question;
-	
+
 	@Column(name = "image_file")
 	private String imageFile;
-	
+
 	@OneToMany(mappedBy = "quizQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<QuizAnswer> quizAnswerList = new ArrayList<>();
 }

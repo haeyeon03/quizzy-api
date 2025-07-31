@@ -62,7 +62,6 @@ public class JwtFilter extends OncePerRequestFilter{
 			
 			filterChain.doFilter(request, response);
 		} catch (Exception e) {
-			log.error("JWT 인증 실패: {}", e.getMessage());
 			handleJwtException(response);
 		}
 	}
@@ -87,3 +86,4 @@ public class JwtFilter extends OncePerRequestFilter{
 		return null;
 	}
 }
+

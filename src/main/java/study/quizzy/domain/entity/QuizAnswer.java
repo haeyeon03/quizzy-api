@@ -1,5 +1,8 @@
 package study.quizzy.domain.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,6 +37,7 @@ public class QuizAnswer extends BaseTimeEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "quiz_question_id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private QuizQuestion quizQuestion;
 
 	@Column(name = "answer")

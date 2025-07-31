@@ -10,19 +10,19 @@ import study.quizzy.domain.dto.rank.RankResponseDto;
 
 public interface QuizService {
 
-	List<QuizResponseDto> getQuizList(QuizRequestDto request);
+    List<QuizResponseDto> getQuizList(QuizRequestDto request);
 
-	QuizResponseDto getQuizById(Long quizId);
+    QuizResponseDto getQuizById(Long quizId);
 
-	List<QuizAnswerResponseDto> getAnswerListByQuizQuestionId(Long quizId, Long quizQuestionId);
+    List<QuizAnswerResponseDto> getAnswerListByQuizQuestionId(Long quizId, Long quizQuestionId);
 
-	Long addQuiz(QuizRequestDto request);
+    Long addQuiz(QuizRequestDto request);
 
-	Long modifyQuiz(QuizRequestDto request);
+    Long modifyQuiz(Long quizId, QuizRequestDto request);
 
-	List<RankResponseDto> getRankListByQuiz(Long quizId);
+    Long removeQuiz(Long quizId);
 
-	Long removeQuiz(QuizRequestDto request);
+    int addRank(Long quizId, String challengerId, RankRequestDto request);
 
-	Long addScore(RankRequestDto request);
+    List<RankResponseDto> getRankListByQuiz(Long quizId);
 }
