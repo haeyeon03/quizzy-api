@@ -10,7 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
 import study.quizzy.domain.dto.quiz.QuizAnswerRequestDto;
@@ -226,16 +226,26 @@ public class QuizServiceImpl implements QuizService {
 	}
 
 	@Override
+	@Transactional
 	public Long removeQuiz(Long quizId) {
 		try {
-			Quiz quiz = quizRepository.findById(quizId)
-	                .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈가 존재하지 않습니다."));
-	        quizRepository.delete(quiz);
-			return 1L;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return 0L;
-		}
+			 // 1. Rank 먼저 삭제
+	        rankRepository.deleteAllById_QuizId(quizId);
+
+	        // 2. 답변들 먼저 삭제 (QuizAnswer)
+	        quizAnswerRepository.deleteByQuizQuestion_Quiz_QuizId(quizId);
+
+	        // 3. 문제들 삭제 (QuizQuestion)
+	        quizQuestionRepository.deleteByQuiz_QuizId(quizId);
+
+	        // 4. 마지막으로 퀴즈 삭제
+	        quizRepository.deleteById(quizId);
+
+	        return 1L;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return 0L;
+	    }
 	}
 
 	@Override

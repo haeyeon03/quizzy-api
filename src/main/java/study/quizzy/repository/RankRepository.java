@@ -10,4 +10,6 @@ public interface RankRepository extends JpaRepository<Rank, RankId> {
     List<Rank> findAllById_QuizIdOrderByScoreDescDurationMsAsc(Long quizId);
 
     List<Rank> findAllById_ChallengerIdOrderByUpdatedAtDesc(String challengerId);
+    
+    void deleteAllById_QuizId(Long quizId);
 }
