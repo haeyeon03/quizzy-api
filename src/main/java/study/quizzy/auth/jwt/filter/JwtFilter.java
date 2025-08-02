@@ -52,12 +52,12 @@ public class JwtFilter extends OncePerRequestFilter{
 			// 토큰 유효성 검사
 			Map<String, Object> claims = JwtUtil.validateToken(accessToken);
 			String challengerId = (String) claims.get("challengerId");
+			String role = (String) claims.get("role");
 
-			ChallengerAuthDto challengerAuthDto = new ChallengerAuthDto(challengerId);
+			ChallengerAuthDto challengerAuthDto = new ChallengerAuthDto(challengerId, role);
 
 			// Security 인증 객체 생성 및 인증
-			UsernamePasswordAuthenticationToken authToken =
-					new UsernamePasswordAuthenticationToken(challengerAuthDto, null, challengerAuthDto.getAuthorities());
+			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(challengerAuthDto, null, challengerAuthDto.getAuthorities());
 			SecurityContextHolder.getContext().setAuthentication(authToken);
 			
 			filterChain.doFilter(request, response);
@@ -72,7 +72,6 @@ public class JwtFilter extends OncePerRequestFilter{
 
 		Map<String, String> errorBody = Map.of("error", "ERROR_LOGIN");
 		String json = new ObjectMapper().writeValueAsString(errorBody);
-
 		try (PrintWriter writer = response.getWriter()) {
 			writer.print(json);
 			writer.flush();

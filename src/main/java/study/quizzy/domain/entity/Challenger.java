@@ -13,7 +13,6 @@ import java.util.List;
 @Getter
 @Setter
 public class Challenger extends BaseTimeEntity {
-
 	@Id
 	@Column(name = "challenger_id")
 	private String challengerId;
@@ -23,6 +22,9 @@ public class Challenger extends BaseTimeEntity {
 
 	@Column(name = "password")
 	private String password;
+
+	@Column(name = "role")
+	private String role;
 
 	@Column(name = "provider")
 	private String provider;

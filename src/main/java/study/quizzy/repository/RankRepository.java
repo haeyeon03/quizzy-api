@@ -1,15 +1,19 @@
 package study.quizzy.repository;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import study.quizzy.domain.entity.Rank;
 import study.quizzy.domain.entity.id.RankId;
-
-import java.util.List;
 
 public interface RankRepository extends JpaRepository<Rank, RankId> {
     List<Rank> findAllById_QuizIdOrderByScoreDescDurationMsAsc(Long quizId);
 
-    List<Rank> findAllById_ChallengerIdOrderByUpdatedAtDesc(String challengerId);
+    Page<Rank> findAllById_ChallengerId(String challengerId, Pageable pageable);
     
     void deleteAllById_QuizId(Long quizId);
+
 }

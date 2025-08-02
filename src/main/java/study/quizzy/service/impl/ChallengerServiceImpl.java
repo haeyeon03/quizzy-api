@@ -3,30 +3,40 @@ package study.quizzy.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+import study.quizzy.comm.response.PageResponse;
 import study.quizzy.domain.dto.challenger.ChallengerAuthDto;
 import study.quizzy.domain.dto.challenger.ChallengerRequestDto;
 import study.quizzy.domain.dto.challenger.ChallengerResponseDto;
 import study.quizzy.domain.dto.quiz.QuizRankResponseDto;
 import study.quizzy.domain.entity.Challenger;
-
+import study.quizzy.domain.entity.Rank;
 import study.quizzy.repository.ChallengerRepository;
+import study.quizzy.repository.RankRepository;
 import study.quizzy.service.ChallengerService;
 
 @Service
 public class ChallengerServiceImpl implements ChallengerService, UserDetailsService {
 	@Autowired
 	ChallengerRepository challengerRepository;
-	
+
+	@Autowired
+	RankRepository rankRepository;
+
 	@Autowired
 	PasswordEncoder passwordEncoder;
 
@@ -66,17 +76,21 @@ public class ChallengerServiceImpl implements ChallengerService, UserDetailsServ
 	}
 
 	@Override
-	public List<ChallengerResponseDto> getChallengerList(ChallengerRequestDto request) {
-		List<ChallengerResponseDto> dtoList = new ArrayList<>();
-
-		List<Challenger> entityList = challengerRepository.findAll();
-
-		for (Challenger c : entityList) {
-			ChallengerResponseDto dto = modelMapper.map(c, ChallengerResponseDto.class);
-			dtoList.add(dto);
+	public PageResponse<ChallengerResponseDto> getChallengerList(ChallengerRequestDto request) {
+		if (request.getCurPage() > 0) {
+			request.setCurPage(request.getCurPage() - 1);
 		}
+		// PageRequest.of(페이지 번호, 페이지 사이즈, 정렬(옵션))
+		Pageable pageable = PageRequest.of(request.getCurPage(), request.getPageSize(),
+				Sort.by(Sort.Direction.DESC, "createdAt"));
 
-		return dtoList;
+		// DB 데이터 조회
+		Page<Challenger> entityList = challengerRepository.findAll(pageable);
+
+		// Entity -> DTO
+		Page<ChallengerResponseDto> dtoList = entityList.map(e->modelMapper.map(e, ChallengerResponseDto.class));
+		return new PageResponse<ChallengerResponseDto>(dtoList);
+		
 	}
 
 	@Override
@@ -86,7 +100,6 @@ public class ChallengerServiceImpl implements ChallengerService, UserDetailsServ
 
 		return modelMapper.map(challenger, ChallengerResponseDto.class);
 	}
-
 
 	@Override
 	public Long modifyChallenger(String challengerId, ChallengerRequestDto request) {
@@ -125,21 +138,20 @@ public class ChallengerServiceImpl implements ChallengerService, UserDetailsServ
 	}
 
 	@Override
-	public List<QuizRankResponseDto> getMyQuizList(String challengerId) {
-		// 1. 도전자 조회
-		Challenger challenger = challengerRepository.findById(challengerId)
-				.orElseThrow(() -> new EntityNotFoundException("해당 도전자가 존재하지 않습니다."));
+	public PageResponse<QuizRankResponseDto> getMyQuizList(String challengerId, ChallengerRequestDto request) {
+		if (request.getCurPage() > 0) {
+			request.setCurPage(request.getCurPage() - 1);
+		}
 
-		// 2. 도전자가 푼 퀴즈 목록 가져오기 (Rank → Quiz)
-		return challenger.getRanks().stream()
-				.map(rank -> {
-					QuizRankResponseDto dto = modelMapper.map(rank.getQuiz(), QuizRankResponseDto.class);
-					dto.setScore(rank.getScore());
-					dto.setDurationMs(rank.getDurationMs());
-					dto.setUpdatedAt(rank.getUpdatedAt());
-					return dto;
-				})
-				.toList();
+		// PageRequest.of(페이지 번호, 페이지 사이즈, 정렬(옵션))
+		Pageable pageable = PageRequest.of(request.getCurPage(), request.getPageSize(),
+				Sort.by(Sort.Direction.DESC, "updatedAt"));
+
+		Page<Rank> entityList = rankRepository.findAllById_ChallengerId(challengerId, pageable);
+
+		Page<QuizRankResponseDto> dtoList = entityList.map(e -> modelMapper.map(e, QuizRankResponseDto.class));
+
+		return new PageResponse<QuizRankResponseDto>(dtoList);
 	}
 
 	private void applyUpdates(Challenger challenger, ChallengerRequestDto request) {
@@ -159,4 +171,5 @@ public class ChallengerServiceImpl implements ChallengerService, UserDetailsServ
 			challenger.setProvider(request.getProvider());
 		}
 	}
+
 }

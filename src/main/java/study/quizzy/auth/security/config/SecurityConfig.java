@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -38,10 +39,12 @@ public class SecurityConfig {
 		http.csrf(config -> config.disable());
 
 		http.authorizeHttpRequests(auth -> auth
-				.anyRequest().authenticated()
-				);
+//			    .requestMatchers("/api/challengers/**").hasAuthority("0") // 0번 역할만 허용
+				.requestMatchers(HttpMethod.POST, "/api/challengers/").permitAll()
+			    .anyRequest().authenticated()
+			);
 
-		// 로그인페이지 URL 을 /api/member/login 지정하고, 인증되지 않은 사용자가 보호된 리소스를 요청하면 이 URL로
+		// 로그인페이지 URL 을 /api/challengers/login 지정하고, 인증되지 않은 사용자가 보호된 리소스를 요청하면 이 URL로
 		// 리다이렉트된다.
 		http.formLogin(config -> {
 			config.loginPage("/api/challengers/login");

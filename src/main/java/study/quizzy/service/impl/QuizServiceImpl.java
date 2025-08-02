@@ -4,19 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
+import study.quizzy.comm.response.PageResponse;
 import study.quizzy.domain.dto.quiz.QuizAnswerRequestDto;
 import study.quizzy.domain.dto.quiz.QuizAnswerResponseDto;
 import study.quizzy.domain.dto.quiz.QuizQuestionRequestDto;
 import study.quizzy.domain.dto.quiz.QuizQuestionResponseDto;
+import study.quizzy.domain.dto.quiz.QuizRankResponseDto;
 import study.quizzy.domain.dto.quiz.QuizRequestDto;
 import study.quizzy.domain.dto.quiz.QuizResponseDto;
 import study.quizzy.domain.dto.rank.AnswerSubmissionDto;
@@ -52,22 +59,26 @@ public class QuizServiceImpl implements QuizService {
 	ModelMapper modelMapper;
 
 	@Override
-	public List<QuizResponseDto> getQuizList(QuizRequestDto request) {
-		List<Quiz> entityList = new ArrayList<>();
-		List<QuizResponseDto> dtoList = new ArrayList<>();
+	public PageResponse<QuizResponseDto> getQuizList(QuizRequestDto request) {
+		if (request.getCurPage() > 0) {
+			request.setCurPage(request.getCurPage() - 1);
+		}
+
+		Pageable pageable = PageRequest.of(request.getCurPage(), request.getPageSize(),
+				Sort.by(Sort.Direction.DESC, "updatedAt"));
+
+		Page<Quiz> entityList = null;
 
 		String title = request.getTitle();
 		if (title == null || title.isBlank()) {
-			entityList = quizRepository.findAll();
+			entityList = quizRepository.findAll(pageable);
 		} else {
-			entityList = quizRepository.findAllByTitle(title);
+			entityList = quizRepository.findAllByTitle(title, pageable);
 		}
 
-		for (Quiz quiz : entityList) {
-			QuizResponseDto dto = modelMapper.map(quiz, QuizResponseDto.class);
-			dtoList.add(dto);
-		}
-		return dtoList;
+		Page<QuizResponseDto> dtoList = entityList.map(e -> modelMapper.map(e, QuizResponseDto.class));
+
+		return new PageResponse<QuizResponseDto>(dtoList);
 	}
 
 	@Override
@@ -229,23 +240,21 @@ public class QuizServiceImpl implements QuizService {
 	@Transactional
 	public Long removeQuiz(Long quizId) {
 		try {
-			 // 1. Rank 먼저 삭제
-	        rankRepository.deleteAllById_QuizId(quizId);
-
-	        // 2. 답변들 먼저 삭제 (QuizAnswer)
-	        quizAnswerRepository.deleteByQuizQuestion_Quiz_QuizId(quizId);
-
-	        // 3. 문제들 삭제 (QuizQuestion)
-	        quizQuestionRepository.deleteByQuiz_QuizId(quizId);
-
-	        // 4. 마지막으로 퀴즈 삭제
-	        quizRepository.deleteById(quizId);
-
-	        return 1L;
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return 0L;
-	    }
+			// 1. 퀴즈 ID 로 퀴즈 조회
+			Quiz quiz = quizRepository.findById(quizId)
+					.orElseThrow(() -> new EntityNotFoundException("해당 퀴즈가 존재하지 않습니다."));
+			// 2. 퀴즈 ID 로 Rank 정보 삭제
+			rankRepository.deleteAllById_QuizId(quiz.getQuizId());
+			// 3. 퀴즤 삭제 (Question, Answer 연쇄 삭제)
+			quizRepository.delete(quiz);
+			return 1L;
+		} catch (DataIntegrityViolationException e) {
+			// 제약 조건 위반 (중복, null 등)
+			// 실패 처리
+		} catch (Exception e) {
+			// 기타 실패 처리
+		}
+		return 0L;
 	}
 
 	@Override

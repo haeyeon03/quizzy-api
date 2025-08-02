@@ -2,18 +2,29 @@ package study.quizzy.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import study.quizzy.comm.response.ApiResponse;
 import study.quizzy.comm.response.CustomResponseEntity;
+import study.quizzy.comm.response.PageResponse;
+
 import study.quizzy.domain.dto.challenger.ChallengerAuthDto;
 import study.quizzy.domain.dto.challenger.ChallengerRequestDto;
 import study.quizzy.domain.dto.challenger.ChallengerResponseDto;
 import study.quizzy.domain.dto.quiz.QuizRankResponseDto;
-import study.quizzy.service.ChallengerService;
 
-import java.util.List;
+import study.quizzy.service.ChallengerService;
 
 @RestController
 @RequestMapping("api/challengers")
@@ -41,9 +52,10 @@ public class ChallengerController {
      * @param request nickname, *curPage, *pageSize (*필수)
      * @return 도전자 목록
      */
+	@PreAuthorize("hasAuthority('0')")
     @GetMapping("/")
-    public ResponseEntity<ApiResponse<List<ChallengerResponseDto>>> getChallengerList(@ModelAttribute ChallengerRequestDto request) {
-        List<ChallengerResponseDto> challengerList = challengerService.getChallengerList(request);
+    public ResponseEntity<ApiResponse<PageResponse<ChallengerResponseDto>>> getChallengerList(@ModelAttribute ChallengerRequestDto request) {
+    	PageResponse<ChallengerResponseDto> challengerList = challengerService.getChallengerList(request);
         return CustomResponseEntity.success(challengerList);
     }
 
@@ -53,6 +65,7 @@ public class ChallengerController {
 	 * @param challengerId 도전자 ID
 	 * @return challengerList
 	 */
+	@PreAuthorize("hasAuthority('0')")
 	@GetMapping("/{challengerId}")
 	public ResponseEntity<ApiResponse<ChallengerResponseDto>> getChallenger(@PathVariable String challengerId) {
 		ChallengerResponseDto challenger = challengerService.getChallenger(challengerId);
@@ -66,6 +79,7 @@ public class ChallengerController {
 	 * @param request nickname, password
 	 * @return Total number of challengers modified (0 or 1)
 	 */
+	@PreAuthorize("hasAuthority('0')")
 	@PutMapping("/{challengerId}")
 	public ResponseEntity<ApiResponse<Long>> modifyChallenger(@PathVariable String challengerId, @RequestBody ChallengerRequestDto request) {
 		Long modified = challengerService.modifyChallenger(challengerId, request);
@@ -78,6 +92,7 @@ public class ChallengerController {
 	 * @param challengerId 도전자 ID
 	 * @return Total number of challengers removed (0 or 1)
 	 */
+	@PreAuthorize("hasAuthority('0')")
 	@DeleteMapping("/{challengerId}")
 	public ResponseEntity<ApiResponse<Long>> removeChallenger(@PathVariable String challengerId) {
 		Long removed = challengerService.removeChallenger(challengerId);
@@ -127,8 +142,8 @@ public class ChallengerController {
 	 * @return 내가 참여한 퀴즈 목록
 	 */
 	@GetMapping("/my/quizzes")
-	public ResponseEntity<ApiResponse<List<QuizRankResponseDto>>> getMyQuizList(@AuthenticationPrincipal ChallengerAuthDto my) {
-		List<QuizRankResponseDto> quizList = challengerService.getMyQuizList(my.getChallengerId());
+	public ResponseEntity<ApiResponse<PageResponse<QuizRankResponseDto>>> getMyQuizList(@AuthenticationPrincipal ChallengerAuthDto my, @ModelAttribute ChallengerRequestDto request) {
+		PageResponse<QuizRankResponseDto> quizList = challengerService.getMyQuizList(my.getChallengerId(), request);
 		return CustomResponseEntity.success(quizList);
 	}
 }

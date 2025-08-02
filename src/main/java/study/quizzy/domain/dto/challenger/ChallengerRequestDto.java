@@ -11,6 +11,7 @@ import study.quizzy.domain.dto.base.BasePageRequestDto;
 public class ChallengerRequestDto extends BasePageRequestDto {
     private String challengerId;
     private String password;
+    private String role;
     private String nickname;
     private String provider;
     private String email;

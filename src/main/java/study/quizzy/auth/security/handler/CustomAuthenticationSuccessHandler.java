@@ -26,6 +26,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("challengerId", challengerAuthDto.getChallengerId());
+		claims.put("role", challengerAuthDto.getRole());
 		
 		// JWT 생성
 		String accessToken = JwtUtil.generateToken(claims, 10);
